@@ -1,0 +1,28 @@
+import { request } from "https";
+import React, { useCallback, useRef, useEffect } from "react";
+
+export const ScrollContext = React.createContext({
+  scrollY: 0,
+});
+
+const useAnimationFrame = (enabled: boolean, callback: () => void) => {
+  const requestRef = useRef<ReturnType<typeof requestAnimationFrame>>();
+
+  const animate = useCallback(() => {
+    callback();
+    requestRef.current = requestAnimationFrame(animate);
+  }, [callback]);
+
+  useEffect(() => {
+    if (enabled) {
+      requestRef.current = requestAnimationFrame(animate);
+      return () => {
+        if (requestRef.current) {
+          return cancelAnimationFrame(requestRef.current);
+        }
+      };
+    }
+  }, [enabled, animate]);
+};
+
+export default useAnimationFrame;
